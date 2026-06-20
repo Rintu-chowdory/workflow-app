@@ -1,15 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-
-const INITIAL_TASKS = [
-  { id: 1, title: 'Design landing page mockup', priority: 'high', status: 'in-progress', due: '2026-06-22' },
-  { id: 2, title: 'Set up CI/CD pipeline', priority: 'medium', status: 'todo', due: '2026-06-25' },
-  { id: 3, title: 'Write unit tests for auth module', priority: 'high', status: 'completed', due: '2026-06-20' },
-  { id: 4, title: 'Update API documentation', priority: 'low', status: 'todo', due: '2026-06-28' },
-  { id: 5, title: 'Code review — payments PR', priority: 'high', status: 'completed', due: '2026-06-19' },
-  { id: 6, title: 'Fix mobile nav bug', priority: 'medium', status: 'in-progress', due: '2026-06-21' },
-]
+import { supabase } from '../lib/supabase'
 
 const QUOTES = [
   'The secret of getting ahead is getting started.',
@@ -18,17 +10,23 @@ const QUOTES = [
   'Done is better than perfect.',
 ]
 
-const PRIORITY_COLORS = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' }
-const STATUS_COLORS = { completed: '#6366f1', 'in-progress': '#f59e0b', todo: '#94a3b8' }
-
 export default function Dashboard() {
-  const [tasks, setTasks] = useState(INITIAL_TASKS)
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [newTask, setNewTask] = useState({ title: '', priority: 'medium', status: 'todo', due: '' })
+  const [newTask, setNewTask] = useState({ title: '', priority: 'medium', status: 'todo', due: '', category: 'Development' })
   const navigate = useNavigate()
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   const quote = QUOTES[new Date().getDay() % QUOTES.length]
+
+  async function fetchTasks() {
+    const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
+    if (data) setTasks(data)
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchTasks() }, [])
 
   const stats = {
     completed: tasks.filter(t => t.status === 'completed').length,
@@ -36,12 +34,6 @@ export default function Dashboard() {
     todo: tasks.filter(t => t.status === 'todo').length,
     high: tasks.filter(t => t.priority === 'high').length,
   }
-
-  const statusData = [
-    { name: 'Completed', value: stats.completed, color: '#6366f1' },
-    { name: 'In Progress', value: stats.inProgress, color: '#f59e0b' },
-    { name: 'To Do', value: stats.todo, color: '#94a3b8' },
-  ]
 
   const priorityData = [
     { name: 'High', value: tasks.filter(t => t.priority === 'high').length, color: '#ef4444' },
@@ -56,21 +48,28 @@ export default function Dashboard() {
 
   const completionRate = tasks.length ? Math.round((stats.completed / tasks.length) * 100) : 0
 
-  function handleAddTask(e) {
+  async function handleAddTask(e) {
     e.preventDefault()
     if (!newTask.title.trim()) return
-    setTasks(prev => [...prev, { ...newTask, id: Date.now() }])
-    setNewTask({ title: '', priority: 'medium', status: 'todo', due: '' })
+    await supabase.from('tasks').insert([newTask])
+    setNewTask({ title: '', priority: 'medium', status: 'todo', due: '', category: 'Development' })
     setShowModal(false)
+    fetchTasks()
   }
 
-  function toggleStatus(id) {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== id) return t
-      const next = t.status === 'todo' ? 'in-progress' : t.status === 'in-progress' ? 'completed' : 'todo'
-      return { ...t, status: next }
-    }))
+  async function toggleStatus(id) {
+    const task = tasks.find(t => t.id === id)
+    if (!task) return
+    const next = task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'todo'
+    await supabase.from('tasks').update({ status: next }).eq('id', id)
+    fetchTasks()
   }
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -136,7 +135,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          {/* Task Status */}
+          {/* Weekly */}
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-sm font-medium text-gray-500 mb-3">Task Status</p>
             <ResponsiveContainer width="100%" height={140}>
@@ -156,18 +155,8 @@ export default function Dashboard() {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">Recent Tasks</h2>
           <div className="flex gap-2">
-            <button
-              onClick={() => navigate('/tasks')}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              View all
-            </button>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors"
-            >
-              + New Task
-            </button>
+            <button onClick={() => navigate('/tasks')} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all</button>
+            <button onClick={() => setShowModal(true)} className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors">+ New Task</button>
           </div>
         </div>
         <div className="divide-y divide-gray-50">
@@ -176,42 +165,30 @@ export default function Dashboard() {
               <button
                 onClick={() => toggleStatus(task.id)}
                 className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                  task.status === 'completed'
-                    ? 'bg-indigo-600 border-indigo-600 text-white'
-                    : task.status === 'in-progress'
-                    ? 'border-amber-400 text-amber-400'
-                    : 'border-gray-300 text-transparent'
+                  task.status === 'completed' ? 'bg-indigo-600 border-indigo-600 text-white' :
+                  task.status === 'in-progress' ? 'border-amber-400 text-amber-400' : 'border-gray-300 text-transparent'
                 }`}
               >
                 {task.status === 'completed' && <span className="text-xs">✓</span>}
                 {task.status === 'in-progress' && <span className="text-xs">●</span>}
               </button>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium truncate ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900'}`}>
-                  {task.title}
-                </p>
+                <p className={`text-sm font-medium truncate ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-900'}`}>{task.title}</p>
                 {task.due && <p className="text-xs text-gray-400 mt-0.5">Due {task.due}</p>}
               </div>
               <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${
                 task.priority === 'high' ? 'bg-red-100 text-red-600' :
-                task.priority === 'medium' ? 'bg-amber-100 text-amber-600' :
-                'bg-green-100 text-green-600'
-              }`}>
-                {task.priority}
-              </span>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 hidden sm:block ${
-                task.status === 'completed' ? 'bg-indigo-100 text-indigo-600' :
-                task.status === 'in-progress' ? 'bg-amber-100 text-amber-600' :
-                'bg-gray-100 text-gray-500'
-              }`}>
-                {task.status === 'in-progress' ? 'In Progress' : task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-              </span>
+                task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'
+              }`}>{task.priority}</span>
             </div>
           ))}
+          {tasks.length === 0 && (
+            <div className="text-center py-12 text-gray-400 text-sm">No tasks yet — add one above!</div>
+          )}
         </div>
       </div>
 
-      {/* Add Task Modal */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
@@ -219,22 +196,15 @@ export default function Dashboard() {
             <form onSubmit={handleAddTask} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Task title</label>
-                <input
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="What needs to be done?"
-                  value={newTask.title}
-                  onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))}
-                  required
-                />
+                <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="What needs to be done?" value={newTask.title}
+                  onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))} required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                  <select
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={newTask.priority}
-                    onChange={e => setNewTask(p => ({ ...p, priority: e.target.value }))}
-                  >
+                  <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={newTask.priority} onChange={e => setNewTask(p => ({ ...p, priority: e.target.value }))}>
                     <option value="high">High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
@@ -242,11 +212,8 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={newTask.status}
-                    onChange={e => setNewTask(p => ({ ...p, status: e.target.value }))}
-                  >
+                  <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={newTask.status} onChange={e => setNewTask(p => ({ ...p, status: e.target.value }))}>
                     <option value="todo">To Do</option>
                     <option value="in-progress">In Progress</option>
                     <option value="completed">Completed</option>
@@ -255,27 +222,14 @@ export default function Dashboard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Due date</label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={newTask.due}
-                  onChange={e => setNewTask(p => ({ ...p, due: e.target.value }))}
-                />
+                <input type="date" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={newTask.due} onChange={e => setNewTask(p => ({ ...p, due: e.target.value }))} />
               </div>
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors"
-                >
-                  Add Task
-                </button>
+                <button type="button" onClick={() => setShowModal(false)}
+                  className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors">Add Task</button>
               </div>
             </form>
           </div>
