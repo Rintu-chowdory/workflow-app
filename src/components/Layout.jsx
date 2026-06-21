@@ -21,7 +21,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold"></span>
+            <span className="text-white text-sm font-bold">W</span>
           </div>
           <span className="text-lg font-semibold text-gray-900">Work Flow</span>
         </div>
@@ -48,7 +48,7 @@ export default function Layout() {
           ))}
         </nav>
 
-        {/* Footer Link */}
+        {/* Footer Links */}
         <div className="absolute bottom-20 left-0 right-0 px-3 border-t border-gray-100 py-3">
           <NavLink
             to="/datenschutz"
@@ -121,125 +121,5 @@ export default function Layout() {
         </main>
       </div>
     </div>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  Ý
+  )
+}
