@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Analytics from './pages/Analytics'
 import Tasks from './pages/Tasks'
 import Datenschutz from './pages/Datenschutz'
+import Impressum from './pages/Impressum'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="datenschutz" element={<Datenschutz />} />
+        <Route path="impressum" element={<Impressum />} />
       </Route>
     </Routes>
   )
