@@ -48,6 +48,23 @@ export default function Layout() {
           ))}
         </nav>
 
+        {/* Footer Link */}
+        <div className="absolute bottom-20 left-0 right-0 px-3 border-t border-gray-100 py-3">
+          <NavLink
+            to="/datenschutz"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
+                isActive
+                  ? 'bg-indigo-50 text-indigo-600'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              }`
+            }
+          >
+            🔒 Datenschutz
+          </NavLink>
+        </div>
+
         {/* Bottom */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-2">
