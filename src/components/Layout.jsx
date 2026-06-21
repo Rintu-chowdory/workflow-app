@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: '⊞' },
-  { to: '/tasks', label: 'Tasks', icon: '✓' },
-  { to: '/analytics', label: 'Analytics', icon: '📊' },
+  { to: '/', label: 'Dashboard', icon: '📊' },
+  { to: '/tasks', label: 'Tasks', icon: '☑️' },
+  { to: '/analytics', label: 'Analytics', icon: '📈' },
 ]
 
 export default function Layout() {
@@ -21,7 +21,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">W</span>
+            <span className="text-white text-sm font-bold"></span>
           </div>
           <span className="text-lg font-semibold text-gray-900">Work Flow</span>
         </div>
@@ -62,6 +62,19 @@ export default function Layout() {
             }
           >
             🔒 Datenschutz
+          </NavLink>
+          <NavLink
+            to="/impressum"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
+                isActive
+                  ? 'bg-indigo-50 text-indigo-600'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              }`
+            }
+          >
+            ℹ️ Impressum
           </NavLink>
         </div>
 
@@ -108,5 +121,125 @@ export default function Layout() {
         </main>
       </div>
     </div>
-  )
-}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  �
