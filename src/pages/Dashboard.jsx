@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { supabase } from '../lib/supabase'
 import { useDark, dueInfo } from '../lib/useTheme'
+import { toast } from '../lib/notify'
 
 const QUOTES = [
   'The secret of getting ahead is getting started.',
@@ -23,7 +24,8 @@ export default function Dashboard() {
   const quote = QUOTES[new Date().getDay() % QUOTES.length]
 
   async function fetchTasks() {
-    const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
+    if (error) toast(`Could not load tasks: ${error.message}`)
     if (data) setTasks(data)
     setLoading(false)
   }
@@ -80,7 +82,9 @@ export default function Dashboard() {
   async function handleAddTask(e) {
     e.preventDefault()
     if (!newTask.title.trim()) return
-    await supabase.from('tasks').insert([newTask])
+    const { error } = await supabase.from('tasks').insert([{ ...newTask, due: newTask.due || null }])
+    if (error) return toast(`Save failed: ${error.message}`)
+    toast('Task added ✓', false)
     setNewTask({ title: '', priority: 'medium', status: 'todo', due: '', category: 'Development' })
     setShowModal(false)
     fetchTasks()
@@ -90,7 +94,8 @@ export default function Dashboard() {
     const task = tasks.find(t => t.id === id)
     if (!task) return
     const next = task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'todo'
-    await supabase.from('tasks').update({ status: next }).eq('id', id)
+    const { error } = await supabase.from('tasks').update({ status: next }).eq('id', id)
+    if (error) return toast(`Update failed: ${error.message}`)
     fetchTasks()
   }
 

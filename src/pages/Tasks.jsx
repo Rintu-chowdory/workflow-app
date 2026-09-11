@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { dueInfo } from '../lib/useTheme'
+import { toast } from '../lib/notify'
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([])
@@ -13,7 +14,8 @@ export default function Tasks() {
   const [search, setSearch] = useState('')
 
   async function fetchTasks() {
-    const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
+    if (error) toast(`Could not load tasks: ${error.message}`)
     if (data) setTasks(data)
     setLoading(false)
   }
@@ -49,17 +51,19 @@ export default function Tasks() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!form.title.trim()) return
-    if (editTask) {
-      await supabase.from('tasks').update(form).eq('id', editTask.id)
-    } else {
-      await supabase.from('tasks').insert([form])
-    }
+    const payload = { ...form, due: form.due || null }
+    const { error } = editTask
+      ? await supabase.from('tasks').update(payload).eq('id', editTask.id)
+      : await supabase.from('tasks').insert([payload])
+    if (error) return toast(`Save failed: ${error.message}`)
+    toast(editTask ? 'Task updated ✓' : 'Task added ✓', false)
     setShowModal(false)
     fetchTasks()
   }
 
   async function deleteTask(id) {
-    await supabase.from('tasks').delete().eq('id', id)
+    const { error } = await supabase.from('tasks').delete().eq('id', id)
+    if (error) return toast(`Delete failed: ${error.message}`)
     fetchTasks()
   }
 
@@ -67,7 +71,8 @@ export default function Tasks() {
     const task = tasks.find(t => t.id === id)
     if (!task) return
     const next = task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'todo'
-    await supabase.from('tasks').update({ status: next }).eq('id', id)
+    const { error } = await supabase.from('tasks').update({ status: next }).eq('id', id)
+    if (error) return toast(`Update failed: ${error.message}`)
     fetchTasks()
   }
 
