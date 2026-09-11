@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase'
 import { dueInfo } from '../lib/useTheme'
 import { toast } from '../lib/notify'
 
+const STATUS_LABELS = { todo: 'To Do', in_progress: 'In Progress', done: 'Done', archived: 'Archived' }
+
 export default function Tasks() {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -70,7 +72,7 @@ export default function Tasks() {
   async function toggleStatus(id) {
     const task = tasks.find(t => t.id === id)
     if (!task) return
-    const next = task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'todo'
+    const next = task.status === 'todo' ? 'in_progress' : task.status === 'in_progress' ? 'done' : 'todo'
     const { error } = await supabase.from('tasks').update({ status: next }).eq('id', id)
     if (error) return toast(`Update failed: ${error.message}`)
     fetchTasks()
@@ -79,8 +81,8 @@ export default function Tasks() {
   const statusTabs = [
     { key: 'all', label: 'All', count: tasks.length },
     { key: 'todo', label: 'To Do', count: tasks.filter(t => t.status === 'todo').length },
-    { key: 'in-progress', label: 'In Progress', count: tasks.filter(t => t.status === 'in-progress').length },
-    { key: 'completed', label: 'Completed', count: tasks.filter(t => t.status === 'completed').length },
+    { key: 'in_progress', label: 'In Progress', count: tasks.filter(t => t.status === 'in_progress').length },
+    { key: 'done', label: 'Completed', count: tasks.filter(t => t.status === 'done').length },
   ]
 
   if (loading) return (
@@ -113,6 +115,7 @@ export default function Tasks() {
         <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}
           className="border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
           <option value="all">All priorities</option>
+          <option value="urgent">Urgent</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
@@ -155,30 +158,30 @@ export default function Tasks() {
                 <div key={task.id} className="flex items-start gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
                   <button onClick={() => toggleStatus(task.id)}
                     className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                      task.status === 'completed' ? 'bg-indigo-600 border-indigo-600 text-white' :
-                      task.status === 'in-progress' ? 'border-amber-400' : 'border-gray-300 dark:border-gray-600'
+                      task.status === 'done' ? 'bg-indigo-600 border-indigo-600 text-white' :
+                      task.status === 'in_progress' ? 'border-amber-400' : 'border-gray-300 dark:border-gray-600'
                     }`}>
-                    {task.status === 'completed' && <span className="text-xs leading-none">✓</span>}
-                    {task.status === 'in-progress' && <span className="w-2 h-2 bg-amber-400 rounded-full block" />}
+                    {task.status === 'done' && <span className="text-xs leading-none">✓</span>}
+                    {task.status === 'in_progress' && <span className="w-2 h-2 bg-amber-400 rounded-full block" />}
                   </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <p className={`text-sm font-medium ${task.status === 'completed' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
+                      <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         task.priority === 'high' ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400' :
                         task.priority === 'medium' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400'
                       }`}>{task.priority}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        task.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
-                        task.status === 'in-progress' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
-                      }`}>{task.status === 'in-progress' ? 'In Progress' : task.status.charAt(0).toUpperCase() + task.status.slice(1)}</span>
+                        task.status === 'done' ? 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
+                        task.status === 'in_progress' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                      }`}>{STATUS_LABELS[task.status] || task.status}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                       {task.category && <span>{task.category}</span>}
                       {due && (
-                        <span className={due.overdue && task.status !== 'completed'
+                        <span className={due.overdue && task.status !== 'done'
                           ? 'text-red-500 dark:text-red-400 font-medium'
-                          : due.today && task.status !== 'completed'
+                          : due.today && task.status !== 'done'
                             ? 'text-amber-500 dark:text-amber-400 font-medium'
                             : ''}>
                           {due.overdue ? `Overdue · ${due.label}` : due.today ? 'Due today' : `Due ${due.label}`}
@@ -221,6 +224,7 @@ export default function Tasks() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                   <select className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value }))}>
+                    <option value="urgent">Urgent</option>
                     <option value="high">High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
@@ -231,8 +235,8 @@ export default function Tasks() {
                   <select className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
                     <option value="todo">To Do</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Completed</option>
                   </select>
                 </div>
               </div>

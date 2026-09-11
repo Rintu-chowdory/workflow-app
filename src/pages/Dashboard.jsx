@@ -40,13 +40,14 @@ export default function Dashboard() {
   }, [showModal])
 
   const stats = {
-    completed: tasks.filter(t => t.status === 'completed').length,
-    inProgress: tasks.filter(t => t.status === 'in-progress').length,
+    completed: tasks.filter(t => t.status === 'done').length,
+    inProgress: tasks.filter(t => t.status === 'in_progress').length,
     todo: tasks.filter(t => t.status === 'todo').length,
-    high: tasks.filter(t => t.priority === 'high' && t.status !== 'completed').length,
+    high: tasks.filter(t => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'done').length,
   }
 
   const priorityData = [
+    { name: 'Urgent', value: tasks.filter(t => t.priority === 'urgent').length, color: '#a855f7' },
     { name: 'High', value: tasks.filter(t => t.priority === 'high').length, color: '#ef4444' },
     { name: 'Medium', value: tasks.filter(t => t.priority === 'medium').length, color: '#f59e0b' },
     { name: 'Low', value: tasks.filter(t => t.priority === 'low').length, color: '#22c55e' },
@@ -63,7 +64,7 @@ export default function Dashboard() {
     const created = new Date(t.created_at)
     const createdSlot = weekData.find(w => w.key === new Date(created.getFullYear(), created.getMonth(), created.getDate()).toDateString())
     if (createdSlot) createdSlot.created += 1
-    if (t.status === 'completed' && t.updated_at) {
+    if (t.status === 'done' && t.updated_at) {
       const updated = new Date(t.updated_at)
       const doneSlot = weekData.find(w => w.key === new Date(updated.getFullYear(), updated.getMonth(), updated.getDate()).toDateString())
       if (doneSlot) doneSlot.done += 1
@@ -93,7 +94,7 @@ export default function Dashboard() {
   async function toggleStatus(id) {
     const task = tasks.find(t => t.id === id)
     if (!task) return
-    const next = task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'todo'
+    const next = task.status === 'todo' ? 'in_progress' : task.status === 'in_progress' ? 'done' : 'todo'
     const { error } = await supabase.from('tasks').update({ status: next }).eq('id', id)
     if (error) return toast(`Update failed: ${error.message}`)
     fetchTasks()
@@ -201,19 +202,19 @@ export default function Dashboard() {
                 <button
                   onClick={() => toggleStatus(task.id)}
                   className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                    task.status === 'completed' ? 'bg-indigo-600 border-indigo-600 text-white' :
-                    task.status === 'in-progress' ? 'border-amber-400 text-amber-400' : 'border-gray-300 dark:border-gray-600 text-transparent'
+                    task.status === 'done' ? 'bg-indigo-600 border-indigo-600 text-white' :
+                    task.status === 'in_progress' ? 'border-amber-400 text-amber-400' : 'border-gray-300 dark:border-gray-600 text-transparent'
                   }`}
                 >
-                  {task.status === 'completed' && <span className="text-xs">✓</span>}
-                  {task.status === 'in-progress' && <span className="text-xs">●</span>}
+                  {task.status === 'done' && <span className="text-xs">✓</span>}
+                  {task.status === 'in_progress' && <span className="text-xs">●</span>}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${task.status === 'completed' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
+                  <p className={`text-sm font-medium truncate ${task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
                   {due && (
-                    <p className={`text-xs mt-0.5 ${due.overdue && task.status !== 'completed'
+                    <p className={`text-xs mt-0.5 ${due.overdue && task.status !== 'done'
                       ? 'text-red-500 dark:text-red-400 font-medium'
-                      : due.today && task.status !== 'completed'
+                      : due.today && task.status !== 'done'
                         ? 'text-amber-500 dark:text-amber-400 font-medium'
                         : 'text-gray-400 dark:text-gray-500'}`}>
                       {due.overdue ? `Overdue · ${due.label}` : due.today ? 'Due today' : `Due ${due.label}`}
@@ -221,6 +222,7 @@ export default function Dashboard() {
                   )}
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${
+                  task.priority === 'urgent' ? 'bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400' :
                   task.priority === 'high' ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400' :
                   task.priority === 'medium' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400'
                 }`}>{task.priority}</span>
@@ -250,6 +252,7 @@ export default function Dashboard() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
                   <select className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={newTask.priority} onChange={e => setNewTask(p => ({ ...p, priority: e.target.value }))}>
+                    <option value="urgent">Urgent</option>
                     <option value="high">High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
@@ -260,8 +263,8 @@ export default function Dashboard() {
                   <select className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     value={newTask.status} onChange={e => setNewTask(p => ({ ...p, status: e.target.value }))}>
                     <option value="todo">To Do</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Completed</option>
                   </select>
                 </div>
               </div>

@@ -47,11 +47,11 @@ export default function Analytics() {
   )
 
   const total = tasks.length
-  /* NOTE: status values are 'todo' | 'in-progress' | 'completed' — kept in
+  /* NOTE: status values are 'todo' | 'in_progress' | 'done' — kept in
      sync with the Tasks page (a previous version counted 'done', which never
      matched real data). */
-  const completed = tasks.filter(t => t.status === 'completed').length
-  const inProgress = tasks.filter(t => t.status === 'in-progress').length
+  const completed = tasks.filter(t => t.status === 'done').length
+  const inProgress = tasks.filter(t => t.status === 'in_progress').length
   const completionRate = total ? Math.round((completed / total) * 100) : 0
 
   // Weekly activity — group by day of week
@@ -59,7 +59,7 @@ export default function Analytics() {
   tasks.forEach(t => {
     const idx = new Date(t.created_at).getDay()
     weeklyMap[idx].created += 1
-    if (t.status === 'completed') weeklyMap[idx].completed += 1
+    if (t.status === 'done') weeklyMap[idx].completed += 1
   })
   const weeklyData = [...weeklyMap.slice(1), weeklyMap[0]]
 
@@ -74,7 +74,7 @@ export default function Analytics() {
     const match = monthlyData.find(m => MONTHS.indexOf(m.month) === d.getMonth() && m.year === d.getFullYear())
     if (match) {
       match.tasks += 1
-      if (t.status === 'completed') match.completed += 1
+      if (t.status === 'done') match.completed += 1
     }
   })
 
