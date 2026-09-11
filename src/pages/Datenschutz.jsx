@@ -7,22 +7,22 @@ export default function Datenschutz() {
     {
       title: 'Verantwortlicher',
       icon: '👤',
-      content: 'WorkflowApp ist verantwortlich für die Datenverarbeitung auf dieser Plattform. Bei Fragen zum Datenschutz kontaktieren Sie uns unter datenschutz@workflowapp.com.'
+      content: 'Verantwortlich für die Datenverarbeitung auf dieser Plattform ist Rintu Chowdory. Bei Fragen zum Datenschutz kontaktieren Sie uns unter chowdorydevops@gmail.com.'
     },
     {
       title: 'Datenerhebung',
       icon: '📊',
-      content: 'Wir erheben und verarbeiten folgende Daten: (1) Benutzerinformationen (Name, E-Mail), (2) Task- und Projektdaten die Sie eingeben, (3) Nutzungsstatistiken und Logs zur Verbesserung unserer Services, (4) Geräteinformationen für technische Unterstützung. Diese Daten werden nur zur Bereitstellung und Verbesserung von WorkflowApp verwendet.'
+      content: 'Wir erheben und verarbeiten folgende Daten: (1) die Aufgaben und Projektdaten, die Sie aktiv eingeben (Titel, Priorität, Status, Kategorie, Fälligkeitsdatum). Es werden keine Cookies gesetzt, keine Tracking-Dienste eingesetzt und keine Nutzerkonten angelegt.'
     },
     {
-      title: 'Google OAuth Login',
+      title: 'Aufgaben-Speicherung (Supabase)',
       icon: '🔐',
-      content: 'Zur Authentifizierung verwenden wir Google OAuth. Wir speichern nur Ihre Google-ID und Ihre in Google hinterlegte E-Mail-Adresse. Wir speichern nicht Ihr Google-Passwort. Sie können die Autorisierung jederzeit in Ihren Google-Kontoeinstellungen widerrufen.'
+      content: 'Diese Anwendung speichert die von Ihnen eingegebenen Aufgaben (Titel, Priorität, Status, Kategorie, Fälligkeitsdatum) in einer Supabase-Datenbank. Es gibt keinen Login und keine Benutzerverwaltung — alle Aufgaben werden in einer gemeinsamen Datenbank ohne personenbezogene Nutzerkonten gespeichert. Geben Sie daher keine sensiblen persönlichen Daten in Aufgaben ein.'
     },
     {
       title: 'Ihre Rechte',
       icon: '⚖️',
-      content: 'Nach der DSGVO haben Sie das Recht: (1) auf Auskunft über Ihre gespeicherten Daten, (2) auf Berichtigung fehlerhafter Daten, (3) auf Löschung Ihrer Daten (Recht auf Vergessenwerden), (4) auf Einschränkung der Verarbeitung, (5) auf Datenportabilität. Sie können diese Rechte jederzeit ausüben, indem Sie uns unter datenschutz@workflowapp.com kontaktieren.'
+      content: 'Nach der DSGVO haben Sie das Recht: (1) auf Auskunft über Ihre gespeicherten Daten, (2) auf Berichtigung fehlerhafter Daten, (3) auf Löschung Ihrer Daten (Recht auf Vergessenwerden), (4) auf Einschränkung der Verarbeitung, (5) auf Datenportabilität. Sie können diese Rechte jederzeit ausüben, indem Sie uns unter chowdorydevops@gmail.com kontaktieren. Da keine Nutzerkonten existieren, können Sie Ihre Aufgaben auch direkt in der Anwendung löschen.'
     },
     {
       title: 'Datensicherheit',
@@ -32,7 +32,7 @@ export default function Datenschutz() {
     {
       title: 'Kontakt',
       icon: '📧',
-      content: 'Für Datenschutzfragen oder um Ihre Rechte auszuüben, kontaktieren Sie: datenschutz@workflowapp.com oder WorkflowApp, Datenschutzbeauftragter, Musterstraße 1, 12345 Musterstadt.'
+      content: 'Für Datenschutzfragen oder um Ihre Rechte auszuüben, kontaktieren Sie: chowdorydevops@gmail.com (Rintu Chowdory).'
     }
   ]
 

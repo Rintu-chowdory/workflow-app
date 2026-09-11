@@ -2,10 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/workflow-app/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Work Flow - Task Organizer</title>
+    <meta name="description" content="Work Flow — a minimal task organizer with dashboard, analytics, and persistent storage. Built with React, Vite and Supabase." />
+    <meta name="theme-color" content="#4f46e5" />
+    <title>Work Flow — Task Organizer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Apply saved theme before React paints to avoid a flash
+      try {
+        var saved = localStorage.getItem('wf-theme')
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (dark) document.documentElement.classList.add('dark')
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

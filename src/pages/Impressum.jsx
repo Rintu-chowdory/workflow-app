@@ -6,16 +6,16 @@ export default function Impressum() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-indigo-600 dark:text-indigo-400">Anbieter</h2>
           <p className="mb-2"><strong>Work Flow</strong></p>
-          <p className="text-gray-600 dark:text-gray-300">Task Management Platform</p>
+          <p className="text-gray-600 dark:text-gray-300">Task Management Anwendung</p>
         </section>
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-indigo-600 dark:text-indigo-400">Kontakt</h2>
-          <p className="text-gray-600 dark:text-gray-300">Email: contact@workflow.app<br />Website: workflow.app</p>
+          <p className="text-gray-600 dark:text-gray-300">Email: chowdorydevops@gmail.com<br />Website: <a href="https://rintu-chowdory.github.io/workflow-app/" className="text-indigo-600 dark:text-indigo-400 underline">rintu-chowdory.github.io/workflow-app</a></p>
         </section>
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-indigo-600 dark:text-indigo-400">Verantwortlich für Inhalte</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-3">Verantwortlich gemäß § 55 Abs. 2 RStV:</p>
-          <p className="text-gray-600 dark:text-gray-300"><strong>Work Flow</strong><br />contact@workflow.app</p>
+          <p className="text-gray-600 dark:text-gray-300"><strong>Rintu Chowdory</strong><br />chowdorydevops@gmail.com</p>
         </section>
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-indigo-600 dark:text-indigo-400">Haftungsausschluss</h2>
