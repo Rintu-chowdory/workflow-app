@@ -83,6 +83,7 @@ export default function Tasks() {
     { key: 'todo', label: 'To Do', count: tasks.filter(t => t.status === 'todo').length },
     { key: 'in_progress', label: 'In Progress', count: tasks.filter(t => t.status === 'in_progress').length },
     { key: 'done', label: 'Completed', count: tasks.filter(t => t.status === 'done').length },
+    { key: 'archived', label: 'Archived', count: tasks.filter(t => t.status === 'archived').length },
   ]
 
   if (loading) return (
@@ -166,22 +167,23 @@ export default function Tasks() {
                   </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
+                      <p className={`text-sm font-medium ${(task.status === 'done' || task.status === 'archived') ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         task.priority === 'high' ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400' :
                         task.priority === 'medium' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400'
                       }`}>{task.priority}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         task.status === 'done' ? 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' :
-                        task.status === 'in_progress' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                        task.status === 'in_progress' ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                        task.status === 'archived' ? 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                       }`}>{STATUS_LABELS[task.status] || task.status}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                       {task.category && <span>{task.category}</span>}
                       {due && (
-                        <span className={due.overdue && task.status !== 'done'
+                        <span className={due.overdue && !['done', 'archived'].includes(task.status)
                           ? 'text-red-500 dark:text-red-400 font-medium'
-                          : due.today && task.status !== 'done'
+                          : due.today && !['done', 'archived'].includes(task.status)
                             ? 'text-amber-500 dark:text-amber-400 font-medium'
                             : ''}>
                           {due.overdue ? `Overdue · ${due.label}` : due.today ? 'Due today' : `Due ${due.label}`}
@@ -237,6 +239,7 @@ export default function Tasks() {
                     <option value="todo">To Do</option>
                     <option value="in_progress">In Progress</option>
                     <option value="done">Completed</option>
+                    <option value="archived">Archived</option>
                   </select>
                 </div>
               </div>
